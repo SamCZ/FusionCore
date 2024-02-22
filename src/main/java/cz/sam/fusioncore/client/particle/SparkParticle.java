@@ -11,6 +11,7 @@ import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import team.lodestar.lodestone.helpers.RenderHelper;
 import team.lodestar.lodestone.systems.particle.world.GenericParticle;
 import team.lodestar.lodestone.systems.rendering.VFXBuilders;
 import team.lodestar.lodestone.systems.rendering.trail.TrailPoint;
@@ -20,18 +21,50 @@ import java.util.List;
 
 public class SparkParticle extends GenericParticle<SparkParticleOptions> {
 
+    public static class TrailVertexBuilderSupplier implements VFXBuilders.WorldVFXBuilder.WorldVertexPlacementSupplier
+    {
+        private Matrix4f prevMatrix;
+        private float prevX;
+        private float prevY;
+        private float prevZ;
+        private float prevU;
+        private float prevV;
+
+        private boolean lineToggle = false;
+        public float thickness = 0.1f;
+
+        @Override
+        public void placeVertex(VertexConsumer consumer, Matrix4f last, float x, float y, float z, float u, float v) {
+            if (!lineToggle)
+            {
+                prevMatrix = last;
+                prevX = x;
+                prevY = y;
+                prevZ = z;
+                prevU = u;
+                prevV = v;
+                lineToggle = true;
+                return;
+            }
+
+            lineToggle = false;
+
+            float thicknessHalf = thickness / 2.0f;
+
+            consumer.vertex(prevX, prevY + thicknessHalf, prevZ).uv(prevU, prevV).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(RenderHelper.FULL_BRIGHT).endVertex();
+            consumer.vertex(prevX, prevY - thicknessHalf, prevZ).uv(prevU, prevV).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(RenderHelper.FULL_BRIGHT).endVertex();
+            consumer.vertex(x, y - thicknessHalf, z).uv(u, v).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(RenderHelper.FULL_BRIGHT).endVertex();
+            consumer.vertex(x, y + thicknessHalf, z).uv(u, v).color(1.0f, 1.0f, 1.0f, 1.0f).uv2(RenderHelper.FULL_BRIGHT).endVertex();
+        }
+    }
+
     public static final VFXBuilders.WorldVFXBuilder builder = VFXBuilders.createWorld().setParticleFormat();
     List<TrailPoint> segments = new ArrayList<>();
 
     public SparkParticle(ClientLevel world, SparkParticleOptions data, ParticleEngine.MutableSpriteSet spriteSet, double x, double y, double z, double xd, double yd, double zd) {
         super(world, data, spriteSet, x, y, z, xd, yd, zd);
 
-        builder.setVertexSupplier(new VFXBuilders.WorldVFXBuilder.WorldVertexPlacementSupplier() {
-            @Override
-            public void placeVertex(VertexConsumer consumer, Matrix4f last, float x, float y, float z, float u, float v) {
-
-            }
-        });
+        builder.setVertexSupplier(new TrailVertexBuilderSupplier());
 
         segments.add(new TrailPoint(new Vec3(0, 0, 0)));
         segments.add(new TrailPoint(new Vec3(0, 1, 0)));

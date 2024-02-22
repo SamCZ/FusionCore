@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "orientation=north": {
+      "model": "fusioncore:block/tesla_coil"
+    },
+    "orientation=south": {
+      "model": "fusioncore:block/tesla_coil",
+      "y": 180
+    },
+    "orientation=east": {
+      "model": "fusioncore:block/tesla_coil",
+      "y": 90
+    },
+    "orientation=west": {
+      "model": "fusioncore:block/tesla_coil",
+      "y": 270
+    }
+  }
+}

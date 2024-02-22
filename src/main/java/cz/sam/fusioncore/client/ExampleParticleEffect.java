@@ -35,6 +35,8 @@ public class ExampleParticleEffect {
 
     public static final ResourceLocation HDR_TEXTURE = new ResourceLocation("fusioncore", "textures/particle/rural_crossroads_8k.hdr");
 
+    public static Vec3 rodOffset = new Vec3(8, 30, -3); // 16x30x16
+
     public static void registerParticleFactory(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(SPHERE_PARTICLE.get(), SphereParticleType.Factory::new);
         event.registerSpriteSet(SPARK_PARTICLE.get(), SparkParticleType.Factory::new);
