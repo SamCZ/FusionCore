@@ -1,27 +1,37 @@
 package cz.sam.fusioncore.block;
 
 import cz.sam.fusioncore.HorizontalDirection;
+import cz.sam.fusioncore.block.entity.TeslaCoilBlockEntity;
+import cz.sam.fusioncore.client.ExampleParticleEffect;
+import cz.sam.fusioncore.client.particle.builder.SparkParticleBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.jetbrains.annotations.NotNull;
+import org.joml.Math;
+import team.lodestar.lodestone.systems.particle.data.color.ColorParticleData;
 
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.ORIENTATION;
+import javax.annotation.Nullable;
+import java.awt.*;
 
-public class TeslaCoilBlock extends Block {
+public class TeslaCoilBlock extends BaseEntityBlock {
 
     private static VoxelShape makeCollisionShape(){
         VoxelShape shape = Shapes.empty();
@@ -55,8 +65,41 @@ public class TeslaCoilBlock extends Block {
         super(BlockBehaviour.Properties.of()
                 .dynamicShape()
                 .forceSolidOn()
+                .randomTicks()
                 .sound(SoundType.METAL));
         registerDefaultState(getStateDefinition().any().setValue(ORIENTATION, HorizontalDirection.NORTH));
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState p_49232_) {
+        return RenderShape.MODEL;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new TeslaCoilBlockEntity(pos, state);
+    }
+
+    @Override
+    public void animateTick(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource randomSource) {
+        super.animateTick(state, level, pos, randomSource);
+        HorizontalDirection horizontalDirection = state.getValue(ORIENTATION);
+
+        //Vec3 offset = new Vec3(0.5, 1.875, 0.175);
+        Vec3 offset = new Vec3(0.5, 0.5, 0.0);
+        offset = offset.yRot(Math.toRadians(horizontalDirection.getDirection().toYRot()));
+
+        Vec3 particlePos = pos.getCenter();
+        particlePos = particlePos.add(offset);
+
+        SparkParticleBuilder.create(ExampleParticleEffect.SPARK_PARTICLE)
+                //.setScaleData(GenericParticleData.create(0.5f, 0).build())
+                //.setTransparencyData(GenericParticleData.create(0.75f, 0.25f).build())
+                .setColorData(ColorParticleData.create(Color.WHITE, Color.WHITE).build())
+                //.setSpinData(SpinParticleData.create(0.2f, 0.4f).setSpinOffset((level.getGameTime() * 0.2f) % 6.28f).setEasing(Easing.QUARTIC_IN).build())
+                .setLifetime(20)
+                .spawn(level, particlePos.x, particlePos.y, particlePos.z);
     }
 
     @Override

@@ -47,7 +47,7 @@ public class ExampleParticleEffect {
         final LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             //spawnSphere(player.level(), new Vec3(-44, 73, 0));
-            spawnSpark(player.level(), new Vec3(-44, 73, 0));
+            //spawnSpark(player.level(), new Vec3(-44, 73, 0));
             //spawnExampleParticles(player.level(), player.position());
         }
     }

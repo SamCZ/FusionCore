@@ -5,10 +5,21 @@ import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 public enum HorizontalDirection implements StringRepresentable {
-    EAST,
-    WEST,
-    SOUTH,
-    NORTH;
+    EAST(Direction.EAST),
+    WEST(Direction.WEST),
+    SOUTH(Direction.SOUTH),
+    NORTH(Direction.NORTH);
+
+    final Direction direction;
+
+    HorizontalDirection(Direction direction)
+    {
+        this.direction = direction;
+    }
+
+    public Direction getDirection() {
+        return this.direction;
+    }
 
     public static HorizontalDirection of(Direction direction) {
         switch (direction) {

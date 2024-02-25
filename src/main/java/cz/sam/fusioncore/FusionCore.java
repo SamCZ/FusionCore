@@ -1,22 +1,21 @@
 package cz.sam.fusioncore;
 
 import com.mojang.logging.LogUtils;
+import cz.sam.fusioncore.block.entity.TeslaCoilBlockEntity;
 import cz.sam.fusioncore.client.ExampleParticleEffect;
 import cz.sam.fusioncore.block.TeslaCoilBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -43,6 +42,15 @@ public class FusionCore
     public static final RegistryObject<Block> TESLA_COIL = BLOCKS.register("tesla_coil", TeslaCoilBlock::new);
     public static final RegistryObject<Item> TESLA_COIL_ITEM = ITEMS.register("tesla_coil", () -> new BlockItem(TESLA_COIL.get(), new Item.Properties()));
 
+    public static final DeferredRegister<BlockEntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
+
+    private static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> register(String registryname, RegistryObject<Block> block, BlockEntityType.BlockEntitySupplier<T> supplier){
+        return ENTITIES.register(registryname, () -> BlockEntityType.Builder.of(supplier, block.get()).build(null));
+    }
+
+    public static final RegistryObject<BlockEntityType<TeslaCoilBlockEntity>> EXAMPLE_GUI_BLOCK = register("tesla_coil", TESLA_COIL, TeslaCoilBlockEntity::new);
+
+
     // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
     public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("fusion_core", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
@@ -64,6 +72,8 @@ public class FusionCore
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
+
+        ENTITIES.register(modEventBus);
 
         ExampleParticleEffect.PARTICLES.register(modEventBus);
 

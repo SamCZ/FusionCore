@@ -14,8 +14,6 @@ public class SparkParticleOptions extends AbstractWorldParticleOptions {
         return Codec.unit(() -> new SparkParticleOptions(type));
     }
 
-
-
     public SparkParticleOptions(ParticleType<?> type) {
         super(type);
     }
